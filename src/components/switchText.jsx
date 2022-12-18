@@ -4,24 +4,20 @@ const SwitchText = () => {
 
   const [text, setText] = useState('Press Play to Start!');
   const [play, setPlay] = useState(false);
-  //const [playPause, setPlayPause] = useState(true);
   const playPause = useRef(true);
   const para = useRef(['For','someone','who','was','never','meant','for','this','world','I','must','confess','I\'m','suddenly','having','a','hard','time','leaving','it']);
   const position = useRef(0);
   const firstRender = useRef(true);
   const intervalNum = useRef(0);
-
-
+  const [speed , setSpeed] = useState(200);
+  const prevPlay = useRef(play);
+  
   useEffect(()=>{
-    console.log("HOW MANY TIMES ARE WE IN HERE")
      if(!firstRender.current){
-      console.log(play)
       if(play){//Start looping through each word
         intervalNum.current = setInterval(()=>{
-          console.log(position.current);
           
           
-          console.log(para.current)
           setText(para.current[position.current++]);
           if(position.current === para.current.length){//Reach end of paragraph, reset to beginning
             position.current = 0;
@@ -30,9 +26,8 @@ const SwitchText = () => {
             //setText(' ');
             setPlay(!play);
 
-            console.log('Play in if statement '+play);
           }
-      }, 200);
+      }, speed);
       }else{//Paragraph was paused
         clearInterval(intervalNum.current)
       }
@@ -41,8 +36,47 @@ const SwitchText = () => {
     }
   },[play]);
 
+  function increaseSpeed(){
+    console.log("inside" + play);
+    if(play){
+      clearInterval(intervalNum.current);
+      setSpeed((speed) => speed - 200);
+      intervalNum.current = setInterval(()=>{
+          
+          
+        setText(para.current[position.current++]);
+        if(position.current === para.current.length){
+          position.current = 0;
+          playPause.current = !playPause.current;
+          clearInterval(intervalNum.current);
+          setPlay(!play);
+
+        }
+    }, speed);
+    }else{
+      setSpeed((speed) => speed - 200);
+    }
+  }
+  function decreaseSpeed(){
+    if(play){
+      clearInterval(intervalNum.current);
+      setSpeed((speed) => speed + 200);
+      intervalNum.current = setInterval(()=>{
+          
+          
+        setText(para.current[position.current++]);
+        if(position.current === para.current.length){
+          position.current = 0;
+          playPause.current = !playPause.current;
+          clearInterval(intervalNum.current);
+          setPlay(!play);
+
+        }
+    }, speed);
+    }else{
+      setSpeed((speed) => speed + 200);
+    }}
   function updateParagraph(event){
-    console.log(event.target.value.split(' '));
     position.current = 0;
     clearInterval(intervalNum.current);
     para.current = event.target.value.split(' ');
@@ -60,7 +94,10 @@ const SwitchText = () => {
             </div>
             <div className='displayDiv'>
               <p className='displayText'>{text}</p>
-              <button class="button-6" onClick={()=>{setPlay(!play); playPause.current=!playPause.current}}>{playPause.current ? 'Play' : 'Pause'}</button>
+              <button className="button-6" onClick={()=>{setPlay(!play); playPause.current=!playPause.current}}>{playPause.current ? 'Play' : 'Pause'}</button>
+              <button className="button-6" onClick={increaseSpeed} >+</button>
+              <button className="button-6" onClick={decreaseSpeed} >-</button>
+
             </div>
         </div>
     );
